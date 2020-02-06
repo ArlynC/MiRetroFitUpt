@@ -5,6 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,17 +21,22 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
-
+    Retrofit retrofit;
+    servicesRetrofit miserviceretrofit;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         final String url = "https://fugacious-bits.000webhostapp.com/";
-        Retrofit retrofit = new Retrofit.Builder()
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
+        retrofit = new Retrofit.Builder()
                 .baseUrl(url)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
-        servicesRetrofit miserviceretrofit = retrofit.create(servicesRetrofit.class);
+         miserviceretrofit = retrofit.create(servicesRetrofit.class);
+
         Call<List<Cliente>> call = miserviceretrofit.getUsersGet();
 //Apartir de aqui la forma cambia de la manera sincrona a la asincrona
 //basicamente mandamos a llamar el metodo enqueue, y le pasamos como parametro el call back
@@ -47,6 +57,27 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    public void ingresar(View view) {
+        EditText user=findViewById(R.id.miuser);
+        EditText pass=findViewById(R.id.mipass);
+        Call<String> call = miserviceretrofit.getLoginGet(user.getText().toString(),pass.getText().toString());
+        call.enqueue(new Callback<String>() {
+            //Metodo que se ejecutara cuando no hay problemas y obtenemos respuesta del server
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+//Exactamente igual a la manera sincrona,la respuesta esta en el body
+                Log.e("milogin: ",response.body());
+            }
+            //Metodo que se ejecutara cuando ocurrio algun problema
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Log.e("milogin",t.toString());// mostrmos el error
+            }
+        });
+
+    }
+
     public static class Peticion extends AsyncTask<Void,Void,Void> {
         @Override
         protected Void doInBackground(Void... voids) {
