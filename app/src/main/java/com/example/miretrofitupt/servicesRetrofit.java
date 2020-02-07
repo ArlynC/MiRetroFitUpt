@@ -3,7 +3,9 @@ package com.example.miretrofitupt;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 public interface servicesRetrofit {
@@ -13,5 +15,8 @@ public interface servicesRetrofit {
     @GET("login.php")
     Call<String> getLoginGet(@Query("Usuario") String idUser, @Query("pass") String mipass);//Recuerda que el valor
 // @Query(valor) debe ser igual a como lo espera el servicio
+
+    @POST("insertarclientepost.php")
+    Call<String> registercliente(@Body ClienteInsertar insertar);
 
 }
